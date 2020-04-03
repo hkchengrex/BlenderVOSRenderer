@@ -10,19 +10,6 @@ A procedural blender pipeline for image generation for deep learning.
 
 Check out their arXiv paper (we are updating it from time to time): https://arxiv.org/abs/1911.01911
 
-## Contents
-
-- [BlenderProc](#blenderproc)
-  - [This is fork from BlenderProc. It is mirrored so that we can use it privately before releasing.](#this-is-fork-from-blenderproc-it-is-mirrored-so-that-we-can-use-it-privately-before-releasing)
-  - [Contents](#contents)
-  - [General](#general)
-  - [Functionality](#functionality)
-  - [Examples](#examples)
-  - [First step](#first-step)
-  - [Source Code](#source-code)
-  - [Contributions](#contributions)
-  - [Change log](#change-log)
-
 ## General
 
 In general, one run of the pipeline first loads or constructs a 3D scene, then sets some camera positions inside this scene and renders different types of images (rgb, depth, normals etc.) for each of them.
