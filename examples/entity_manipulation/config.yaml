@@ -4,8 +4,6 @@
   "setup": {
     "blender_install_path": "/home_local/<env:USER>/blender/",
     "pip": [
-      "h5py",
-      "imageio"
     ]
   },
   "global": {
@@ -36,62 +34,142 @@
         ]
       }
     },
+
+
     {
-      "module": "camera.CameraLoader",
+      "module": "composite.CameraObjectTrajRunner",
       "config": {
-        "cam_poses": [
-        {
-          "location": [0, -13.741, 4.1242],
-          "rotation": {
-            "value":[1.3, 0, 0]
+        "total_noof_cams": 20,
+        "noof_cams_per_scene": 1,
+        "object_pose_sampler": {
+          "module": "object.ObjectFixedPoseSampler",
+          "config": {
+            "poses": [
+            {
+              "location": [0.05, -0.05, 0.05],
+              "rotation": [0.05, 0, 0]
+            },
+            {
+              "location": [0.05, 0.05, 0.05],
+              "rotation": [0.05, 0.1, 0]
+            },
+            {
+              "location": [0.15, 0.05, 0.075],
+              "rotation": [0.05, 0, 0.1]
+            }
+            ],
           }
         },
-        {
-          "location": [1.9488, -6.5202, 0.23291],
-          "rotation": {
-            "value": [1.84, 0, 0.5]
+        "camera_pose_sampler": {
+          "module": "camera.CameraSampler",
+          "config": {
+            "cam_poses": [
+            {
+              "location": [0, -13, 4],
+              "rotation": {
+                "value":[1.3, 0.2, 0]
+              }
+            },
+            ],
           }
         }
-        ],
-        "default_cam_param": {
-          "fov": 1
-        }
       }
     },
+
+    # {
+    #   "module": "camera.CameraLoader",
+    #   "config": {
+    #     "cam_poses": [
+    #     {
+    #       "location": [0, -13, 4],
+    #       "rotation": {
+    #         "value":[1.3, 0, 0]
+    #       }
+    #     },
+    #     {
+    #       "location": [0, -13, 4],
+    #       "rotation": {
+    #         "value": [1.3, 0, 0]
+    #       }
+    #     },
+    #     {
+    #       "location": [0, -13, 4],
+    #       "rotation": {
+    #         "value": [1.3, 0, 0]
+    #     }
+    #     }
+    #     ],
+    #     "default_cam_param": {
+    #       "fov": 1
+    #     }
+    #   }
+    # },
+    # {
+    #   "module": "object.EntityManipulator",
+    #   "config": {
+    #     "selector": {
+    #       "provider": "getter.Entity",
+    #       "conditions": {
+    #         "name": 'Suzanne',
+    #         "type": "MESH"  # this guarantees that the object is a mesh, and not for example a camera
+    #       }
+    #     },
+    #     "location": {
+    #       "provider": "sampler.Uniform3d",
+    #       "max":[1, 2, 3],
+    #       "min":[0, 1, 2]
+    #     },
+    #     # "location": [
+    #     #   {
+    #     #     [1, 2, 3],
+    #     #     [0, 1, 2],
+    #     #   },
+    #     # ],
+    #     # "location": [
+    #     #   "value": [1, 2, 3],
+    #     #   "value": [1, 1, 3],
+    #     # ],
+    #     "rotation_euler": [1, 1, 0],
+    #     "physics": False
+    #   }
+    # },
+    # {
+    #   "module": "object.ObjectPoseSampler",
+    #   "config":{
+    #     "objects_to_sample": {
+    #       "provider": "getter.Entity",
+    #       "conditions": {
+    #         "name": 'Suzanne',
+    #         "type": "MESH"
+    #       }
+    #     },
+    #     "pos_sampler":{
+    #       "provider":"sampler.Uniform3d",
+    #       "max":[1, 1, 1],
+    #       "min":[-1, -1, 1]
+    #     },
+    #     "rot_sampler":{
+    #       "provider":"sampler.Uniform3d",
+    #       "max":[1, 1, 1],
+    #       "min":[0, 0, 0]
+    #     }
+    #   }
+    # },
+
     {
-      "module": "object.EntityManipulator",
+      "module": "renderer.SimRgbRenderer",
       "config": {
-        "selector": {
-          "provider": "getter.Entity",
-          "conditions": {
-            "name": 'Suzanne',
-            "type": "MESH"  # this guarantees that the object is a mesh, and not for example a camera
-          }
-        },
-        "location": {
-          "provider": "sampler.Uniform3d",
-          "max":[1, 2, 3],
-          "min":[0, 1, 2]
-        },
-        "rotation_euler": [1, 1, 0],
-        "physics": True
+        "output_key": "colors"
       }
     },
     {
-      "module": "renderer.NormalRenderer",
+      "module": "renderer.SegMapPngRenderer",
       "config": {
-        "output_key": "normals"
+        "map_by": "instance"
       }
     },
     {
-      "module": "renderer.RgbRenderer",
-      "config": {
-        "output_key": "colors",
-        "samples": 350
-      }
-    },
-    {
-      "module": "writer.Hdf5Writer",
+      "module": "writer.RGBSegWriter",
       "config": {
       }
     }
