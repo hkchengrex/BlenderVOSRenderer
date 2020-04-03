@@ -3,9 +3,6 @@
   "version": 2,
   "setup": {
     "blender_install_path": "/home_local/<env:USER>/blender/",
-    "pip": [
-      "h5py"
-    ]
   },
   "global": {
     "all": {
