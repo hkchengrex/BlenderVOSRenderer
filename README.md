@@ -1,22 +1,27 @@
 # BlenderProc
 
+## This is fork from [BlenderProc](https://github.com/DLR-RM/BlenderProc). It is mirrored so that we can use it privately before releasing.
+
 <p align="center">
 <img src="readme.jpg" alt="Front readme image" width=430>
 </p>
 
 A procedural blender pipeline for image generation for deep learning.
 
-Check out our arXiv paper (we are updating it from time to time): https://arxiv.org/abs/1911.01911
+Check out their arXiv paper (we are updating it from time to time): https://arxiv.org/abs/1911.01911
 
 ## Contents
 
-* [General](#general)
-* [Functionality](#functionality)
-* [Examples](#examples)
-* [First step](#first-step)
-* [Source code](#source-code)
-* [Contributions](#contributions)
-* [Change log](#change-log)
+- [BlenderProc](#blenderproc)
+  - [This is fork from BlenderProc. It is mirrored so that we can use it privately before releasing.](#this-is-fork-from-blenderproc-it-is-mirrored-so-that-we-can-use-it-privately-before-releasing)
+  - [Contents](#contents)
+  - [General](#general)
+  - [Functionality](#functionality)
+  - [Examples](#examples)
+  - [First step](#first-step)
+  - [Source Code](#source-code)
+  - [Contributions](#contributions)
+  - [Change log](#change-log)
 
 ## General
 
