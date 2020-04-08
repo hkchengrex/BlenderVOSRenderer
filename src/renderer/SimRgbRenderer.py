@@ -63,7 +63,7 @@ class SimRgbRenderer(Renderer):
             bpy.context.scene.render.image_settings.color_mode = "RGB"
             bpy.context.scene.render.image_settings.file_format = "JPEG"
             bpy.context.scene.render.image_settings.color_depth = "8"
-            bpy.context.scene.render.image_settings.quality = 100
+            bpy.context.scene.render.image_settings.quality = 95
 
             # check if texture less render mode is active
             if self._texture_less_mode:
