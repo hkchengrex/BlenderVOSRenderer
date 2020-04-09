@@ -51,19 +51,19 @@
               "rotation": [0.05, 0, 0]
             },
             {
-              "location": [0.05, 0.05, 0.05],
+              "location": [0.05, 0.05, 0.15],
               "rotation": [0.05, 0.1, 0]
             },
             {
-              "location": [0.15, 0.05, 0.075],
+              "location": [0.15, 0.05, 0.275],
               "rotation": [0.05, 0, 0.1]
             },
             {
-              "location": [0.15, 0.05, 0.075],
+              "location": [0.15, 0.05, 0.375],
               "rotation": [0.05, 0, 0.1]
             },
             {
-              "location": [0.15, 0.05, 0.075],
+              "location": [0.15, 0.05, 0.475],
               "rotation": [0.05, 0, 0.1]
             }
             ],
@@ -80,25 +80,25 @@
               }
             },
             {
-              "location": [0, -13, 4],
+              "location": [1, -13, 4],
               "rotation": {
                 "value":[1.3, 0.2, 0]
               }
             },
             {
-              "location": [0, -13, 4],
+              "location": [2, -13, 4],
               "rotation": {
                 "value":[1.3, 0.2, 0]
               }
             },
             {
-              "location": [0, -13, 4],
+              "location": [3, -13, 4],
               "rotation": {
                 "value":[1.3, 0.2, 0]
               }
             },
             {
-              "location": [0, -13, 4],
+              "location": [4, -13, 4],
               "rotation": {
                 "value":[1.3, 0.2, 0]
               }
