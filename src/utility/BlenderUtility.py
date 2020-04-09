@@ -260,6 +260,13 @@ def get_all_mesh_objects():
     """
     return [obj for obj in bpy.context.scene.objects if obj.type == 'MESH']
 
+def get_mesh_objects_with_name(names):
+    """
+    Returns the mesh objects in the scene that matches one of the given name
+    :return: a list of all mesh objects
+    """
+    return [obj for obj in bpy.context.scene.objects if obj.type == 'MESH' and obj.name in names] 
+
 def load_image(file_path, num_channels=3):
     """ Load the image at the given path returns its pixels as a numpy array.
 

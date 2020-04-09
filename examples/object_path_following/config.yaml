@@ -1,0 +1,130 @@
+# Args: <obj_file> <output_dir>
+{
+  "version": 2,
+  "setup": {
+    "blender_install_path": "/home/<env:USER>/blender/",
+    "pip": [
+    ]
+  },
+  "global": {
+    "all": {
+      "output_dir": "<args:1>"
+    }
+  },
+  "modules": [
+    {
+      "module": "main.Initializer",
+      "config": {}
+    },
+    {
+      "module": "loader.ObjectLoader",
+      "config": {
+        "path": "<args:0>"
+      }
+    },
+    {
+      "module": "lighting.LightLoader",
+      "config": {
+        "lights": [
+          {
+            "type": "POINT",
+            "location": [5, -5, 5],
+            "energy": 1000
+          }
+        ]
+      }
+    },
+
+
+    {
+      "module": "composite.CameraObjectTrajRunner",
+      "config": {
+        "total_noof_cams": 5,
+        "noof_cams_per_scene": 1,
+        "object_pose_sampler": {
+          "module": "object.ObjectTrajectoryRunner",
+          "config": {
+            "target_names": ['Suzanne'],
+            "poses": [
+            {
+              "location": [0.05, -0.05, 0.05],
+              "rotation": [0.05, 0, 0]
+            },
+            {
+              "location": [0.05, 0.05, 0.05],
+              "rotation": [0.05, 0.1, 0]
+            },
+            {
+              "location": [0.15, 0.05, 0.075],
+              "rotation": [0.05, 0, 0.1]
+            },
+            {
+              "location": [0.15, 0.05, 0.075],
+              "rotation": [0.05, 0, 0.1]
+            },
+            {
+              "location": [0.15, 0.05, 0.075],
+              "rotation": [0.05, 0, 0.1]
+            }
+            ],
+          }
+        },
+        "camera_pose_sampler": {
+          "module": "camera.CameraTrajectoryRunner",
+          "config": {
+            "cam_poses": [
+            {
+              "location": [0, -13, 4],
+              "rotation": {
+                "value":[1.3, 0.2, 0]
+              }
+            },
+            {
+              "location": [0, -13, 4],
+              "rotation": {
+                "value":[1.3, 0.2, 0]
+              }
+            },
+            {
+              "location": [0, -13, 4],
+              "rotation": {
+                "value":[1.3, 0.2, 0]
+              }
+            },
+            {
+              "location": [0, -13, 4],
+              "rotation": {
+                "value":[1.3, 0.2, 0]
+              }
+            },
+            {
+              "location": [0, -13, 4],
+              "rotation": {
+                "value":[1.3, 0.2, 0]
+              }
+            },
+            ],
+          }
+        }
+      }
+    },
+
+    {
+      "module": "renderer.SimRgbRenderer",
+      "config": {
+        "output_key": "colors"
+      }
+    },
+    {
+      "module": "renderer.SegMapPngRenderer",
+      "config": {
+        "map_by": "instance"
+      }
+    },
+    {
+      "module": "writer.RGBSegWriter",
+      "config": {
+      }
+    }
+  ]
+}

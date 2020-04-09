@@ -28,21 +28,21 @@ class CameraObjectTrajRunner(Module):
         self._camera_pose_sampler = Utility.initialize_modules([camera_pose_sampler_config], {})[0]
     
     def run(self):
-        total_noof_cams = self.config.get_int("total_noof_cams", 10)
-        noof_cams_per_scene = self.config.get_int("noof_cams_per_scene", 5)
+        total_noof_cams = self.config.get_int("total_noof_cams", -1)
 
         for i in range(total_noof_cams):
-            if i % noof_cams_per_scene == 0:
-                # sample new object poses
-                self._object_pose_sampler.run(i)
+
+            self._object_pose_sampler.run(i)
+            self._camera_pose_sampler.run(i)
 
             # get current keyframe id
             frame_id = bpy.context.scene.frame_end
 
-            # TODO: Use Getter for selecting objects
             for obj in get_all_mesh_objects():
                 # insert keyframes for current object poses
                 self._object_pose_sampler.insert_key_frames(obj, frame_id)
+            self._camera_pose_sampler.insert_key_frames(frame_id)
 
-            # sample new camera poses
-            self._camera_pose_sampler.run()
+            bpy.context.scene.frame_end = frame_id + 1
+            
+        bpy.context.view_layer.update()
