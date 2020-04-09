@@ -68,7 +68,7 @@
           "module": "camera.CameraTrajectoryRunner",
           "config": {
             "intrinsics": {
-              "resolution_x": 720,
+              "resolution_x": 640,
               "resolution_y": 480,
             },
             "cam_poses": {
@@ -82,11 +82,11 @@
                 ],
               "forward_vec": 
                 [
-                  [0, 1, 0],
-                  [0, 1, 0],
-                  [0, 1, 0],
-                  [0, 1, 0],
-                  [0, 1, 0],
+                  [0, 1, -0.2],
+                  [0, 1, -0.2],
+                  [0, 1, -0.2],
+                  [0, 1, -0.2],
+                  [0, 1, -0.2],
                 ],
               }
             }
@@ -97,12 +97,16 @@
     {
       "module": "renderer.SimRgbRenderer",
       "config": {
+        "resolution_x": 640,
+        "resolution_y": 480,
         "output_key": "colors"
       }
     },
     {
       "module": "renderer.SegMapPngRenderer",
       "config": {
+        "resolution_x": 640,
+        "resolution_y": 480,
         "map_by": "instance"
       }
     },
