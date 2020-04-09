@@ -10,26 +10,20 @@ from collections import defaultdict
 
 class CameraTrajectoryRunner(CameraModule):
     """ Run the camera along the predefined trajectory with no valid pose checking
-
-    .. csv-table::
-       :header: "Parameter", "Description"
-
-       "target_name", "Name of the object to be controlled."
-       "poses", "Poses to be used in each time frame."
     """
 
     def __init__(self, config):
         CameraModule.__init__(self, config)
         self.locations = config.get_list("cam_poses/locations")
         self.forward_vec = config.get_list("cam_poses/forward_vec")
-        self.config = Config(config.get_raw_dict('intrinsics'))
+        self.intri_config = Config(config.get_raw_dict('intrinsics'))
 
     def run(self, n_frames):
         cam_ob = bpy.context.scene.camera
         cam = cam_ob.data
 
         # Use the same intrinsics
-        self._set_cam_intrinsics(cam, self.config)
+        self._set_cam_intrinsics(cam, self.intri_config)
 
         for i in range(n_frames):
 

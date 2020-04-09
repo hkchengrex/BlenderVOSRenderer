@@ -11,12 +11,6 @@ from collections import defaultdict
 
 class ObjectTrajectoryRunner(Module):
     """ Run a set of objects along the predefined trajectory
-
-    .. csv-table::
-       :header: "Parameter", "Description"
-
-       "target_name", "Name of the object to be controlled."
-       "poses", "Poses to be used in each time frame."
     """
 
     def __init__(self, config):
