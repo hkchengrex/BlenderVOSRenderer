@@ -8,7 +8,8 @@ from mathutils import Vector, Euler
 
 
 class LightTrajectoryRunner(Module):
-    """ Run a light source along the predefined trajectory
+    """ 
+    Load a light source and run it along the predefined trajectory
     """
 
     def __init__(self, config):
