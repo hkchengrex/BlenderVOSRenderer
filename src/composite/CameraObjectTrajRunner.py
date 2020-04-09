@@ -31,17 +31,7 @@ class CameraObjectTrajRunner(Module):
         total_noof_cams = self.config.get_int("total_noof_cams", -1)
 
         self._camera_pose_sampler.run(total_noof_cams)
-        for i in range(total_noof_cams):
+        self._object_pose_sampler.run(total_noof_cams)
 
-            self._object_pose_sampler.run(i)
-
-            # get current keyframe id
-            frame_id = bpy.context.scene.frame_end
-
-            for obj in get_all_mesh_objects():
-                # insert keyframes for current object poses
-                self._object_pose_sampler.insert_key_frames(obj, frame_id)
-
-            bpy.context.scene.frame_end = frame_id + 1
-            
+        bpy.context.scene.frame_end += total_noof_cams
         bpy.context.view_layer.update()

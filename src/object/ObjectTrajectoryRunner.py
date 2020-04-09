@@ -25,20 +25,13 @@ class ObjectTrajectoryRunner(Module):
         Module.__init__(self, config)
         self.poses = self.config.get_list("poses")
 
-    def run(self, frame_id):
+    def run(self, n_frames):
         objects = get_mesh_objects_with_name(self.config.get_list('target_names'))
 
-        for obj in objects:
-            obj.location = Vector(self.poses[frame_id]['location'])
-            obj.rotation_euler = Euler(self.poses[frame_id]['rotation'])
+        for i in range(n_frames):
+            for obj in objects:
+                obj.location = Vector(self.poses[i]['location'])
+                obj.rotation_euler = Euler(self.poses[i]['rotation'])
 
-
-    def insert_key_frames(self, obj, frame_id):
-        """ Insert key frames for given object pose
-
-        :param obj: Loaded object
-        :param frame_id: The frame number where key frames should be inserted.
-        """
-
-        obj.keyframe_insert(data_path='location', frame=frame_id)
-        obj.keyframe_insert(data_path='rotation_euler', frame=frame_id)
+                obj.keyframe_insert(data_path='location', frame=i)
+                obj.keyframe_insert(data_path='rotation_euler', frame=i)
