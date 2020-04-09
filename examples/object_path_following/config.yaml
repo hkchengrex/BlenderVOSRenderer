@@ -23,6 +23,12 @@
       }
     },
     {
+      "module": "loader.ObjectLoader",
+      "config": {
+        "path": "<args:2>"
+      }
+    },
+    {
       "module": "lighting.LightLoader",
       "config": {
         "lights": [
@@ -43,15 +49,15 @@
         "object_runner": {
           "module": "object.ObjectTrajectoryRunner",
           "config": {
-            "target_names": ['Suzanne'],
+            "target_names": ['m1'],
             "poses": {
               "locations": 
               [
-                [0.05, 0.15, 0.05],
-                [0.05, 1.25, 0.15],
-                [0.15, 2.35, 0.275],
-                [0.15, 3.45, 0.375],
-                [0.15, 4.55, 0.475],
+                [-1, -10, 0.5],
+                [0, -10, 1.0],
+                [1, -10, 1.5],
+                [2, -10, 2.0],
+                [3, -10, 2.5],
               ],
               "rotations": 
               [
@@ -74,11 +80,11 @@
             "cam_poses": {
               "locations":
                 [
-                  [0, -13, 4],
-                  [1, -13, 4],
-                  [2, -13, 4],
-                  [3, -13, 4],
-                  [4, -13, 4],
+                  [0, -20, 4],
+                  [1, -20, 4],
+                  [2, -20, 4],
+                  [3, -20, 4],
+                  [4, -20, 4],
                 ],
               "forward_vec": 
                 [
