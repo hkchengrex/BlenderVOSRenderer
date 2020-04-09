@@ -39,74 +39,59 @@
     {
       "module": "composite.CameraObjectTrajRunner",
       "config": {
-        "total_noof_cams": 5,
-        "noof_cams_per_scene": 1,
-        "object_pose_sampler": {
+        "n_frames": 5,
+        "object_runner": {
           "module": "object.ObjectTrajectoryRunner",
           "config": {
             "target_names": ['Suzanne'],
-            "poses": [
-            {
-              "location": [0.05, 0.15, 0.05],
-              "rotation": [0.05, 0, 0]
+            "poses": {
+              "locations": 
+              [
+                [0.05, 0.15, 0.05],
+                [0.05, 1.25, 0.15],
+                [0.15, 2.35, 0.275],
+                [0.15, 3.45, 0.375],
+                [0.15, 4.55, 0.475],
+              ],
+              "rotations": 
+              [
+                [0.05, 0, 0],
+                [0.05, 0.1, 0],
+                [0.05, 0, 0.1],
+                [0.05, 0, 0.1],
+                [0.05, 0, 0.1],
+              ],
             },
-            {
-              "location": [0.05, 1.25, 0.15],
-              "rotation": [0.05, 0.1, 0]
-            },
-            {
-              "location": [0.15, 2.35, 0.275],
-              "rotation": [0.05, 0, 0.1]
-            },
-            {
-              "location": [0.15, 3.45, 0.375],
-              "rotation": [0.05, 0, 0.1]
-            },
-            {
-              "location": [0.15, 4.55, 0.475],
-              "rotation": [0.05, 0, 0.1]
-            }
-            ],
           }
         },
-        "camera_pose_sampler": {
+        "camera_runner": {
           "module": "camera.CameraTrajectoryRunner",
           "config": {
-            "cam_poses": [
-            {
-              "location": [0, -13, 4],
-              "rotation": {
-                "value":[1.3, 0.2, 0]
-              }
+            "intrinsics": {
+              "resolution_x": 720,
+              "resolution_y": 480,
             },
-            {
-              "location": [1, -13, 4],
-              "rotation": {
-                "value":[1.3, 0.2, 0]
+            "cam_poses": {
+              "locations":
+                [
+                  [0, -13, 4],
+                  [1, -13, 4],
+                  [2, -13, 4],
+                  [3, -13, 4],
+                  [4, -13, 4],
+                ],
+              "forward_vec": 
+                [
+                  [0, 1, 0],
+                  [0, 1, 0],
+                  [0, 1, 0],
+                  [0, 1, 0],
+                  [0, 1, 0],
+                ],
               }
-            },
-            {
-              "location": [2, -13, 4],
-              "rotation": {
-                "value":[1.3, 0.2, 0]
-              }
-            },
-            {
-              "location": [3, -13, 4],
-              "rotation": {
-                "value":[1.3, 0.2, 0]
-              }
-            },
-            {
-              "location": [4, -13, 4],
-              "rotation": {
-                "value":[1.3, 0.2, 0]
-              }
-            },
-            ],
+            }
           }
         }
-      }
     },
 
     {

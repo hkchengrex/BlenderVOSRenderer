@@ -20,29 +20,22 @@ class CameraTrajectoryRunner(CameraModule):
 
     def __init__(self, config):
         CameraModule.__init__(self, config)
-        self.cam_poses = self.config.get_list("cam_poses")
+        self.locations = config.get_list("cam_poses/locations")
+        self.forward_vec = config.get_list("cam_poses/forward_vec")
+        self.config = Config(config.get_raw_dict('intrinsics'))
 
     def run(self, n_frames):
         cam_ob = bpy.context.scene.camera
         cam = cam_ob.data
 
-        for i in range(n_frames):
-            config = Config(self.cam_poses[i])
+        # Use the same intrinsics
+        self._set_cam_intrinsics(cam, self.config)
 
-            self._set_cam_intrinsics(cam, config)
-            cam_ob.matrix_world = self._cam2world_matrix_from_cam_extrinsics(config)
+        for i in range(n_frames):
+
+            # Resolve a new camera pose, sets the parameters of the given camera object accordingly.
+            location = self.locations[i]
+            forward_vec = self.forward_vec[i]
+            cam_ob.matrix_world = self._cam2world_matrix_from_cam_extrinsics_forward(location, forward_vec)
 
             self._insert_key_frames(cam, cam_ob, i)
-
-    def resolve_cam_pose(self, cam, cam_ob, config):
-        """ Resolve a new camera pose, sets the parameters of the given camera object accordingly.
-
-        :param cam: The camera which contains only camera specific attributes.
-        :param cam_ob: The object linked to the camera which determines general properties like location/orientation
-        :param config: The config object describing how to sample
-        """
-        # Sample/set camera intrinsics
-        self._set_cam_intrinsics(cam, config)
-
-        # Sample camera extrinsics (we do not set them yet for performance reasons)
-        cam_ob.matrix_world = self._cam2world_matrix_from_cam_extrinsics(config)
