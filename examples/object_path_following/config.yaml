@@ -33,6 +33,7 @@
             "intrinsics": {
               "resolution_x": 640,
               "resolution_y": 480,
+              "fov": 0.6,
             },
             "cam_poses": {
               "locations":
@@ -43,7 +44,7 @@
                   [3, -20, 4],
                   [4, -20, 4],
                 ],
-              "forward_vec": 
+              "look_at": 
                 [
                   [0, 1, -0.2],
                   [0, 1, -0.2],

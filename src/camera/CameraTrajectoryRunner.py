@@ -15,7 +15,7 @@ class CameraTrajectoryRunner(CameraModule):
     def __init__(self, config):
         CameraModule.__init__(self, config)
         self.locations = config.get_list("cam_poses/locations")
-        self.forward_vec = config.get_list("cam_poses/forward_vec")
+        self.look_at = config.get_list("cam_poses/look_at")
         self.intri_config = Config(config.get_raw_dict('intrinsics'))
 
     def run(self, n_frames):
@@ -29,7 +29,7 @@ class CameraTrajectoryRunner(CameraModule):
 
             # Resolve a new camera pose, sets the parameters of the given camera object accordingly.
             location = self.locations[i]
-            forward_vec = self.forward_vec[i]
-            cam_ob.matrix_world = self._cam2world_matrix_from_cam_extrinsics_forward(location, forward_vec)
+            look_at = self.look_at[i]
+            cam_ob.matrix_world = self._cam2world_matrix_from_cam_extrinsics_look_at(location, look_at)
 
             self._insert_key_frames(cam, cam_ob, i)

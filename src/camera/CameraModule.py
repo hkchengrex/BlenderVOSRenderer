@@ -179,3 +179,21 @@ class CameraModule(Module):
         cam2world_matrix = Matrix.Translation(Vector(position)) @ Euler(rotation_euler, 'XYZ').to_matrix().to_4x4()
 
         return cam2world_matrix
+
+    def _cam2world_matrix_from_cam_extrinsics_look_at(self, location, look_at):
+        """ Determines camera extrinsics by using the location and the look_at vector.
+
+        :param look_at: The look_at vector.
+        :return: The cam to world transformation matrix.
+        """
+
+        position = Vector(Utility.transform_point_to_blender_coord_frame(location, self.source_frame))
+
+        forward_vec = Vector(look_at) - position
+        forward_vec.normalize()
+        # Convert forward vector to euler angle (Assume Up = Z)
+        rotation_euler = forward_vec.to_track_quat('-Z', 'Y').to_euler()
+
+        cam2world_matrix = Matrix.Translation(position) @ Euler(rotation_euler, 'XYZ').to_matrix().to_4x4()
+
+        return cam2world_matrix
