@@ -32,21 +32,27 @@ class ObjectTrajectoryRunner(Module):
             self.obj = get_mesh_objects_with_name([self.name])[0]
             self.modeler.mesh = self.obj.data
 
-        self.modeler.mod_rotation(frame)
+        self.modeler.update_animation(frame)
         self.modeler.apply_transformation()
 
     def run(self, n_frames):
 
         file_path = Utility.resolve_path(self.config.get_string("path"))
         self.obj = Utility.import_objects(filepath=file_path)[0]
-        self.modeler = MeshModeler(self.obj.data, 8)
-        self.modeler.segment_mesh()
-        self.modeler.build_skeleton()
+        seed = self.config.get_int("seed")
+
+        try:
+            np.random.seed(seed)
+            self.modeler = MeshModeler(self.obj.data, 8)
+            self.modeler.segment_mesh()
+            self.modeler.build_skeleton()
+            self.modeler.build_animation(n_frames)
+            bpy.app.handlers.frame_change_pre.append(self.mesh_deform_handler)
+        except Exception as e:
+            print('Mesh segmentation failed. Bailing!', e)
 
         self.name = self.obj.name
         self.obj.scale = self.config.get_vector('scale')
-
-        bpy.app.handlers.frame_change_pre.append(self.mesh_deform_handler)
 
         pts = [i/(n_frames-1) for i in range(n_frames)]
         locations_np = poly.polyval(pts, self.location_poly)

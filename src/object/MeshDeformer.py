@@ -9,6 +9,7 @@ import itertools
 from sklearn.cluster import KMeans, SpectralClustering
 from collections import defaultdict
 from scipy.spatial.transform import Rotation
+import numpy.polynomial.polynomial as poly
 
 
 def _face_center(mesh, face):
@@ -58,6 +59,10 @@ class Node:
         # self.true_r = self.r * self.pr
         # self.true_t = self.r.apply(self.pt) + self.t
         self.true_r = self.pr * self.r
+
+        angle = self.true_r.as_euler('zxy')
+        self.true_r = Rotation.from_euler('zxy', np.clip(angle, -np.pi, np.pi))
+
         self.true_t = self.pr.apply(self.t) + self.pt
         for c in self.child:
             c.pr = self.true_r
@@ -223,13 +228,15 @@ class MeshModeler:
                     if dist < min_dist:
                         min_dist = dist
                         min_node = j
-                self.mesh_seg_idx[self.mesh_seg_idx==i] = j
+                self.mesh_seg_idx[self.mesh_seg_idx==i] = -1
 
         # Reinstate the cluster numbering
         buf_label = self.mesh_seg_idx.copy()
         buf_centr = {}
         new_tree = {}
         new_components = np.unique(self.mesh_seg_idx)
+        new_components = np.delete(new_components, np.where(new_components == -1))
+
         replacement = {}
         for i, j in enumerate(new_components):
             buf_label[self.mesh_seg_idx==j] = i
@@ -302,14 +309,42 @@ class MeshModeler:
 
         print('build_skeleton: Skeleton completed!')
 
-    def mod_rotation(self, n_f):
-        for n in self.nodes:
-            if n == self.nodes[self.root]:
+    def build_animation(self, n_frames):
+        print('build_animation: Starting...')
+
+        self.node_poly = {}
+        self.n_frames = n_frames
+        for i in range(len(self.nodes)):
+            if i == self.root:
                 continue
-            # angle = n.r.as_euler('zyx')
-            angle = np.zeros(3, dtype=np.float32)
-            angle = np.clip(angle+n_f*0.02, -np.pi/2, np.pi/2)
-            n.r = Rotation.from_euler('zyx', angle)
+            degree = np.random.randint(3, 7)
+            rot_angles = np.zeros((degree+1, 3))
+            max_angle_diff = 0.1 * n_frames / degree
+
+            rot_angles[0] = np.zeros(3)
+            for j in range(1, degree+1):
+                this_ang_dist = np.random.rand(3) * max_angle_diff
+                rot_angles[j] = rot_angles[j-1] + this_ang_dist
+                rot_angles[j] = np.clip(rot_angles[j], -np.pi/4, np.pi/4)
+            Xs = np.array([k/degree for k in range(degree+1)])
+            self.node_poly[i] = poly.polyfit(Xs, rot_angles, deg=degree)
+
+
+    def update_animation(self, frame_i):
+        for i in range(len(self.nodes)):
+            if i == self.root:
+                continue
+            angle = poly.polyval(frame_i/self.n_frames, self.node_poly[i])
+            self.nodes[i].r = Rotation.from_euler('zxy', angle)
+
+    # def mod_rotation(self, n_f):
+    #     for n in self.nodes:
+    #         if n == self.nodes[self.root]:
+    #             continue
+    #         # angle = n.r.as_euler('zyx')
+    #         angle = np.zeros(3, dtype=np.float32)
+    #         angle = np.clip(angle+n_f*0.02, -np.pi/2, np.pi/2)
+    #         n.r = Rotation.from_euler('zyx', angle)
 
     def apply_transformation(self):
         self.nodes[self.root].propagate()

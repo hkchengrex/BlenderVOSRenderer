@@ -61,7 +61,8 @@ class Renderer(Module):
 
          :param default_samples: Default number of samples to render for each pixel
         """
-        bpy.context.scene.cycles.samples = self.config.get_int("samples", default_samples)
+        # bpy.context.scene.cycles.samples = self.config.get_int("samples", default_samples)
+        bpy.context.scene.cycles.samples = default_samples
 
         if self.config.get_bool("auto_tile_size", True):
             bpy.context.scene.ats_settings.is_enabled = True

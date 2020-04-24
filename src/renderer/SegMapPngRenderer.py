@@ -99,7 +99,7 @@ class SegMapPngRenderer(Renderer):
         :param objects: A list of objects.
         :return: The num_splits_per_dimension of the spanned color space, the color map
         """
-        colors, num_splits_per_dimension = Utility.generate_equidistant_values(len(objects), self.render_colorspace_size_per_dimension)
+        colors, num_splits_per_dimension = Utility.generate_equidistant_values(len(objects)+1, self.render_colorspace_size_per_dimension)
 
         # Set world background label
         self._set_world_background_color(colors[0])
@@ -110,7 +110,7 @@ class SegMapPngRenderer(Renderer):
                 self._colorize_object(obj, colors[0])
             else:
                 self._colorize_object(obj, colors[idx])
-                idx += 1
+            idx += 1
 
         return colors, num_splits_per_dimension
 

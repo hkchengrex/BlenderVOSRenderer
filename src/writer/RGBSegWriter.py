@@ -27,9 +27,11 @@ class RGBSegWriter(Module):
         self._avoid_rendering = config.get_bool("avoid_rendering", False)
         self.rgb_output_key = self.config.get_string("rgb_output_key", "colors")
         self.segmap_png_output_key = self.config.get_string("segmap_png_output_key", "segmap_png")
-        self._out_data_dir = os.path.join(self._determine_output_dir(False), 'rendered')
-        if not os.path.exists(self._out_data_dir):
-            os.makedirs(self._out_data_dir)
+        self.ren_out_data_dir = os.path.join(self._determine_output_dir(False), 'image')
+        self.seg_out_data_dir = os.path.join(self._determine_output_dir(False), 'segmentation')
+
+        os.makedirs(self.ren_out_data_dir, exist_ok=True)
+        os.makedirs(self.seg_out_data_dir, exist_ok=True)
 
     def run(self):
         if self._avoid_rendering:
@@ -56,14 +58,14 @@ class RGBSegWriter(Module):
 
             # Segmentation
             source_path = segmentation_map_output["path"] % frame
-            target_path = os.path.join(self._out_data_dir, os.path.basename(segmentation_map_output["path"] % (frame)))
+            target_path = os.path.join(self.seg_out_data_dir, os.path.basename(segmentation_map_output["path"] % (frame)))
 
             shutil.copyfile(source_path, target_path)
             segmentation_map_paths.append(segmentation_map_output["path"] % frame)
 
             # RGB
             source_path = rgb_output["path"] % frame
-            target_path = os.path.join(self._out_data_dir, os.path.basename(rgb_output["path"] % (frame)))
+            target_path = os.path.join(self.ren_out_data_dir, os.path.basename(rgb_output["path"] % (frame)))
 
             shutil.copyfile(source_path, target_path)
             new_out_paths.append(os.path.basename(target_path))
