@@ -2,6 +2,7 @@ import mathutils
 import bpy
 import random
 
+import numpy.polynomial.polynomial as poly
 from src.main.Module import Module
 from src.utility.Utility import Utility
 from mathutils import Vector, Euler
@@ -14,8 +15,8 @@ class LightTrajectoryRunner(Module):
 
     def __init__(self, config):
         Module.__init__(self, config)
-        self.locations = self.config.get_list("poses/locations")
-        self.rotations = self.config.get_list("poses/rotations")
+        self.location_poly = self.config.get_list("poses/location_poly")
+        self.rotation_poly = self.config.get_list("poses/rotation_poly")
 
     def run(self, n_frames):
         # Create light source
@@ -28,11 +29,16 @@ class LightTrajectoryRunner(Module):
         light_data.color = self.config.get_list("light/color", [1, 1, 1])
         light_data.distance = self.config.get_float("light/distance", 0)
 
-        print(light_data.energy)
+        pts = [i/(n_frames-1) for i in range(n_frames)]
+        locations_np = poly.polyval(pts, self.location_poly)
+        rotations_np = poly.polyval(pts, self.rotation_poly)
+
+        locations = locations_np.transpose(1, 0).astype(float).tolist()
+        rotations = rotations_np.transpose(1, 0).astype(float).tolist()
 
         for i in range(n_frames):
-            light_obj.location = Vector(self.locations[i])
-            light_obj.rotation_euler = Euler(self.rotations[i])
+            light_obj.location = Vector(locations[i])
+            light_obj.rotation_euler = Euler(rotations[i])
 
             light_obj.keyframe_insert(data_path='location', frame=i)
             light_obj.keyframe_insert(data_path='rotation_euler', frame=i)

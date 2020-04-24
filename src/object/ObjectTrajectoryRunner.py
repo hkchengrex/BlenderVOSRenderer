@@ -6,6 +6,8 @@ from src.utility.Utility import Utility
 from src.object.MeshDeformer import MeshModeler
 
 from mathutils import Vector, Euler
+import numpy as np
+import numpy.polynomial.polynomial as poly
 import bmesh
 import sys
 import numbers
@@ -18,8 +20,8 @@ class ObjectTrajectoryRunner(Module):
 
     def __init__(self, config):
         Module.__init__(self, config)
-        self.locations = self.config.get_list("poses/locations")
-        self.rotations = self.config.get_list("poses/rotations")
+        self.location_poly = self.config.get_list("poses/location_poly")
+        self.rotation_poly = self.config.get_list("poses/rotation_poly")
 
     # I have no idea why it gives me 3 arguments
     # Maybe it just wants to argue with me
@@ -46,11 +48,16 @@ class ObjectTrajectoryRunner(Module):
 
         bpy.app.handlers.frame_change_pre.append(self.mesh_deform_handler)
 
-        # objects = get_mesh_objects_with_name(self.config.get_list('target_names'))
+        pts = [i/(n_frames-1) for i in range(n_frames)]
+        locations_np = poly.polyval(pts, self.location_poly)
+        rotations_np = poly.polyval(pts, self.rotation_poly)
+
+        locations = locations_np.transpose(1, 0).astype(float).tolist()
+        rotations = rotations_np.transpose(1, 0).astype(float).tolist()
 
         for i in range(n_frames):
-            self.obj.location = Vector(self.locations[i])
-            self.obj.rotation_euler = Euler(self.rotations[i])
+            self.obj.location = Vector(locations[i])
+            self.obj.rotation_euler = Euler(rotations[i])
 
             self.obj.keyframe_insert(data_path='location', frame=i)
             self.obj.keyframe_insert(data_path='rotation_euler', frame=i)

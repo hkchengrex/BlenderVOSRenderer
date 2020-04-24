@@ -106,8 +106,6 @@ class SegMapPngRenderer(Renderer):
 
         idx = 1
         for obj in objects:
-
-            print(obj.name)
             if 'skybox' in obj.name:
                 self._colorize_object(obj, colors[0])
             else:
