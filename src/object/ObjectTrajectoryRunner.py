@@ -40,16 +40,19 @@ class ObjectTrajectoryRunner(Module):
         file_path = Utility.resolve_path(self.config.get_string("path"))
         self.obj = Utility.import_objects(filepath=file_path)[0]
         seed = self.config.get_int("seed")
+        animate = self.config.get_bool('animate', False)
 
-        try:
-            np.random.seed(seed)
-            self.modeler = MeshModeler(self.obj.data, 8)
-            self.modeler.segment_mesh()
-            self.modeler.build_skeleton()
-            self.modeler.build_animation(n_frames)
-            bpy.app.handlers.frame_change_pre.append(self.mesh_deform_handler)
-        except Exception as e:
-            print('Mesh segmentation failed. Bailing!', e)
+        if animate:
+            try:
+                np.random.seed(seed)
+                self.modeler = MeshModeler(self.obj.data, 8)
+                self.modeler.segment_mesh()
+                self.modeler.build_skeleton()
+                self.modeler.build_animation(n_frames)
+                bpy.app.handlers.frame_change_pre.append(self.mesh_deform_handler)
+            except Exception as e:
+                print('Mesh segmentation failed. Bailing!', e)
+                raise e
 
         self.name = self.obj.name
         self.obj.scale = self.config.get_vector('scale')

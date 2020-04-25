@@ -7,6 +7,7 @@ import math
 import mathutils
 import itertools
 from sklearn.cluster import KMeans, SpectralClustering
+from sklearn.neighbors import NearestNeighbors
 from collections import defaultdict
 from scipy.spatial.transform import Rotation
 import numpy.polynomial.polynomial as poly
@@ -60,8 +61,8 @@ class Node:
         # self.true_t = self.r.apply(self.pt) + self.t
         self.true_r = self.pr * self.r
 
-        angle = self.true_r.as_euler('zxy')
-        self.true_r = Rotation.from_euler('zxy', np.clip(angle, -np.pi, np.pi))
+        # angle = self.true_r.as_euler('zxy')
+        # self.true_r = Rotation.from_euler('zxy', np.clip(angle, -np.pi, np.pi))
 
         self.true_t = self.pr.apply(self.t) + self.pt
         for c in self.child:
@@ -130,21 +131,28 @@ class MeshModeler:
         new_centroids = {}
         for i in range(n_components):
             idx = new_labels==i
-            if (idx).sum() < 10:
+            if (idx).sum() < 30:
                 new_labels[idx] = -1
             else:
                 new_centroids[i] = self.face_loc[idx].mean(0)
 
+        # Build NN with good faces
+        good_face_loc = self.face_loc[new_labels != -1, :]
+        good_face_idx = new_labels[new_labels != -1]
+        face_neigh = NearestNeighbors(n_neighbors=1)
+        face_neigh.fit(good_face_loc)
+
         for i, l in enumerate(new_labels):
             if l == -1:
-                min_dist = np.inf
-                min_cidx = 0
-                for cidx, cpos in new_centroids.items():
-                    dist = np.linalg.norm(cpos-self.face_loc[i])
-                    if dist < min_dist:
-                        min_dist = dist
-                        min_cidx = cidx
-                new_labels[i] = min_cidx
+                new_labels[i] = good_face_idx[face_neigh.kneighbors(self.face_loc[i:i+1,:], return_distance=False)]
+                # min_dist = np.inf
+                # min_cidx = 0
+                # for cidx, cpos in new_centroids.items():
+                #     dist = np.linalg.norm(cpos-self.face_loc[i])
+                #     if dist < min_dist:
+                #         min_dist = dist
+                #         min_cidx = cidx
+                # new_labels[i] = min_cidx
 
         re_labels = new_labels.copy()
         self.centroid = {}
@@ -172,6 +180,12 @@ class MeshModeler:
             for i, j in itertools.combinations(sorted(types), 2):
                 connections[i,j] = connections[j,i] = 1
                 splitting_edges[(i,j)].append(edge)
+
+        # Find locked components, i.e. adjacent to >2 other components
+        self.locked = []
+        for i in range(self.nc):
+            if connections[i,:].sum() > 2:
+                self.locked.append(i)
 
         joints = defaultdict(list)
         for k, edges in splitting_edges.items():
@@ -217,23 +231,38 @@ class MeshModeler:
                             break
 
 
-        # Merge the segments that are not connected to the tree by their nearest neighbor
         for i in range(self.nc):
             if i not in inserted:
-                # Is lonely
-                min_dist = np.inf
-                min_node = None
-                for j in inserted:
-                    dist = np.linalg.norm(self.centroid[i] - self.centroid[j])
-                    if dist < min_dist:
-                        min_dist = dist
-                        min_node = j
                 self.mesh_seg_idx[self.mesh_seg_idx==i] = -1
+
+        # Merge the segments that are not connected to the tree by their nearest neighbor
+        good_face_loc = self.face_loc[self.mesh_seg_idx != -1, :]
+        good_face_idx = self.mesh_seg_idx[self.mesh_seg_idx != -1]
+        face_neigh = NearestNeighbors(n_neighbors=1)
+        face_neigh.fit(good_face_loc)
+        
+        for i, l in enumerate(self.mesh_seg_idx):
+            if l == -1:
+                self.mesh_seg_idx[i] = good_face_idx[face_neigh.kneighbors(self.face_loc[i:i+1,:], return_distance=False)]
+
+        # for i in range(self.nc):
+        #     if i not in inserted:
+        #         # Is lonely
+        #         min_dist = np.inf
+        #         min_node = None
+        #         for j in inserted:
+        #             dist = np.linalg.norm(self.centroid[i] - self.centroid[j])
+        #             if dist < min_dist:
+        #                 min_dist = dist
+        #                 min_node = j
+        #         # self.mesh_seg_idx[self.mesh_seg_idx==i] = -1
+        #         self.mesh_seg_idx[self.mesh_seg_idx==i] = j
 
         # Reinstate the cluster numbering
         buf_label = self.mesh_seg_idx.copy()
         buf_centr = {}
         new_tree = {}
+        new_locked = []
         new_components = np.unique(self.mesh_seg_idx)
         new_components = np.delete(new_components, np.where(new_components == -1))
 
@@ -243,6 +272,7 @@ class MeshModeler:
             buf_centr[i] = self.centroid[j]
             new_tree[i] = [m for m, n in enumerate(new_components) if n in tree[j]]
             replacement[j] = i
+        new_locked = [i for i, j in enumerate(new_components) if j in self.locked]
 
         # Replace the joints
         buf_joints = {}
@@ -256,12 +286,17 @@ class MeshModeler:
         
         print("build_skeleton: Eliminated lonely components from %d to %d" % (self.nc, len(new_components)))
         print("build_skeleton: Eliminated joints from %d to %d" % (len(self.joints), len(buf_joints)))
+        self.locked = new_locked
         self.joints = buf_joints
         self.nc = len(new_components)
         self.mesh_seg_idx = buf_label
         self.centroid = buf_centr
         self.tree = new_tree
         self.root = replacement[root]
+
+        self.locked.append(self.root)
+        self.locked = np.unique(self.locked)
+        print("build_skeleton: %d components locked in total" % (len(self.locked)))
 
     def _compute_weight_map(self):
         # Compute weight map
@@ -315,24 +350,26 @@ class MeshModeler:
         self.node_poly = {}
         self.n_frames = n_frames
         for i in range(len(self.nodes)):
-            if i == self.root:
+            if i in self.locked:
                 continue
             degree = np.random.randint(3, 7)
             rot_angles = np.zeros((degree+1, 3))
-            max_angle_diff = 0.1 * n_frames / degree
+            max_angle_diff = 0.15 * n_frames / degree
 
-            rot_angles[0] = np.zeros(3)
+            rot_angles[0] = (np.random.rand(3)*2-1) * np.pi/2
             for j in range(1, degree+1):
-                this_ang_dist = np.random.rand(3) * max_angle_diff
+                this_ang_dist = (np.random.rand(3)*2-1) * max_angle_diff
                 rot_angles[j] = rot_angles[j-1] + this_ang_dist
-                rot_angles[j] = np.clip(rot_angles[j], -np.pi/4, np.pi/4)
+                rot_angles[j] = np.clip(rot_angles[j], -np.pi/2, np.pi/2)
             Xs = np.array([k/degree for k in range(degree+1)])
             self.node_poly[i] = poly.polyfit(Xs, rot_angles, deg=degree)
+
+        self.update_animation(0)
 
 
     def update_animation(self, frame_i):
         for i in range(len(self.nodes)):
-            if i == self.root:
+            if i in self.locked:
                 continue
             angle = poly.polyval(frame_i/self.n_frames, self.node_poly[i])
             self.nodes[i].r = Rotation.from_euler('zxy', angle)
