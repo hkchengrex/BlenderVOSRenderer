@@ -8,7 +8,7 @@ import time
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-d', type=int, help='Device to be used')
-parser.add_argument('-N', type=int, help='Number of jobs', default=4)
+parser.add_argument('-N', type=int, help='Number of jobs', default=3)
 parser.add_argument('--models', help='Model path', default='../ShapeNet/ShapeNetCore.v2')
 parser.add_argument('--textures', help='Texture path', default='../Texture')
 parser.add_argument('--output', help='Output path', default='../output/render')
