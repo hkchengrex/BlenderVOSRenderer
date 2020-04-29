@@ -25,6 +25,7 @@ parser.add_argument('--reinstall-packages', dest='reinstall_packages', action='s
 parser.add_argument('--reinstall-blender', dest='reinstall_blender', action='store_true', help='If given, the blender installation is deleted and reinstalled. Is ignored, if a "custom_blender_path" is configured in the configuration file.')
 parser.add_argument('--batch_process',help='Renders a batch of house-cam combinations, by reading a file containing the combinations on each line, where each line is the standard placeholder arguments for rendering a single scene separated by spaces. The value of this option is the path to the index file, no need to add placeholder arguments.')
 parser.add_argument('-h', '--help', dest='help', action='store_true', help='Show this help message and exit.')
+parser.add_argument('--fast', action='store_true', help='Run faster by skipping some steps in setup.')
 args = parser.parse_args()
 
 if args.config is None:
@@ -91,7 +92,7 @@ if "custom_blender_path" not in setup_config:
             file_tmp = urlretrieve(url, None, DownloadProgressBar())[0]
         except ImportError:
             print("Progressbar for downloading, can only been shown, "
-                  "when the python package \"progressbar\" is installed")
+                "when the python package \"progressbar\" is installed")
             file_tmp = urlretrieve(url, None)[0]
 
 
@@ -110,7 +111,7 @@ if "custom_blender_path" not in setup_config:
             os.rename(file_tmp, os.path.join(blender_install_path, blender_version + ".dmg"))
             # installing the blender app by mounting it and extracting the information
             subprocess.Popen(["hdiutil attach {}".format(os.path.join(blender_install_path, blender_version + ".dmg"))],
-                             shell=True).wait()
+                            shell=True).wait()
             subprocess.Popen(
                 ["cp -r {} {}".format(os.path.join("/", "Volumes", "Blender", "Blender.app"), blender_install_path)],
                 shell=True).wait()
@@ -135,65 +136,66 @@ else:
 print("Using blender in " + blender_path)
 
 
-general_required_packages = ["pyyaml==5.1.2", "Sphinx==1.6.5"]
+if not args.fast:
+    general_required_packages = ["pyyaml==5.1.2", "Sphinx==1.6.5"]
 
-required_packages = general_required_packages
-if "pip" in setup_config:
-    required_packages += setup_config["pip"]
+    required_packages = general_required_packages
+    if "pip" in setup_config:
+        required_packages += setup_config["pip"]
 
-# Install required packages
-if len(required_packages) > 0:
-    # Install pip
-    if platform == "linux" or platform == "linux2":
-        python_bin_folder = os.path.join(blender_path, major_version, "python", "bin")
-        packages_path = os.path.abspath(os.path.join(blender_path, "custom-python-packages"))
-    elif platform == "darwin":
-        python_bin_folder = os.path.join(blender_path, "Contents", "Resources", major_version, "python", "bin")
-        packages_path = os.path.abspath(os.path.join(blender_path, "Contents", "Resources", "custom-python-packages"))
-    else:
-        raise Exception("This system is not supported yet: {}".format(platform))
-    subprocess.Popen(["./python3.7m", "-m", "ensurepip"], env=dict(os.environ, PYTHONPATH=""), cwd=python_bin_folder).wait()
-    # Make sure pip is up-to-date
-    subprocess.Popen(["./python3.7m", "-m", "pip", "install", "--upgrade", "pip"], env=dict(os.environ, PYTHONPATH=""), cwd=python_bin_folder).wait()
-    
-    # Make sure to not install into the default site-packages path, as this would overwrite already pre-installed packages
-    if not os.path.exists(packages_path):
-        os.mkdir(packages_path)
-
-    used_env = dict(os.environ, PYTHONPATH=packages_path)
-    # Collect already installed packages by calling pip list (outputs: <package name>==<version>)
-    installed_packages = subprocess.check_output(["./python3.7m", "-m", "pip", "list", "--format=freeze"], env=used_env, cwd=python_bin_folder)
-
-    # Split up strings into two lists (names and versions)
-    installed_packages_name, installed_packages_versions = zip(*[str(line).lower().split('==') for line in installed_packages.splitlines()])
-    installed_packages_name = [ele[2:] if ele.startswith("b'") else ele for ele in installed_packages_name]
-    installed_packages_versions = [ele[:-1] if ele.endswith("'") else ele for ele in installed_packages_versions]
-
-    # Install all packages
-    for package in required_packages:
-        # Extract name and target version
-        if "==" in package:
-            package_name, package_version = package.lower().split('==')
+    # Install required packages
+    if len(required_packages) > 0:
+        # Install pip
+        if platform == "linux" or platform == "linux2":
+            python_bin_folder = os.path.join(blender_path, major_version, "python", "bin")
+            packages_path = os.path.abspath(os.path.join(blender_path, "custom-python-packages"))
+        elif platform == "darwin":
+            python_bin_folder = os.path.join(blender_path, "Contents", "Resources", major_version, "python", "bin")
+            packages_path = os.path.abspath(os.path.join(blender_path, "Contents", "Resources", "custom-python-packages"))
         else:
-            package_name, package_version = package.lower(), None
+            raise Exception("This system is not supported yet: {}".format(platform))
+        subprocess.Popen(["./python3.7m", "-m", "ensurepip"], env=dict(os.environ, PYTHONPATH=""), cwd=python_bin_folder).wait()
+        # Make sure pip is up-to-date
+        subprocess.Popen(["./python3.7m", "-m", "pip", "install", "--upgrade", "pip"], env=dict(os.environ, PYTHONPATH=""), cwd=python_bin_folder).wait()
+        
+        # Make sure to not install into the default site-packages path, as this would overwrite already pre-installed packages
+        if not os.path.exists(packages_path):
+            os.mkdir(packages_path)
 
-        # Check if package is installed
-        already_installed = package_name in installed_packages_name
+        used_env = dict(os.environ, PYTHONPATH=packages_path)
+        # Collect already installed packages by calling pip list (outputs: <package name>==<version>)
+        installed_packages = subprocess.check_output(["./python3.7m", "-m", "pip", "list", "--format=freeze"], env=used_env, cwd=python_bin_folder)
 
-        # If version check is necessary
-        if package_version is not None and already_installed:
-            # Check if the correct version is installed
-            already_installed = (package_version == installed_packages_versions[installed_packages_name.index(package_name)])
-            print("{}:{} was installed: {}".format(package_name, package_version, already_installed))
+        # Split up strings into two lists (names and versions)
+        installed_packages_name, installed_packages_versions = zip(*[str(line).lower().split('==') for line in installed_packages.splitlines()])
+        installed_packages_name = [ele[2:] if ele.startswith("b'") else ele for ele in installed_packages_name]
+        installed_packages_versions = [ele[:-1] if ele.endswith("'") else ele for ele in installed_packages_versions]
 
-            # If there is already a different version installed
-            if not already_installed:
-                # Remove the old version (We have to do this manually, as we are using --target with pip install. There old version are not removed)
-                subprocess.Popen(["./python3.7m", "-m", "pip", "uninstall", package_name, "-y"], env=dict(os.environ, PYTHONPATH=packages_path), cwd=python_bin_folder).wait()
+        # Install all packages
+        for package in required_packages:
+            # Extract name and target version
+            if "==" in package:
+                package_name, package_version = package.lower().split('==')
+            else:
+                package_name, package_version = package.lower(), None
 
-        # Only install if its not already installed (pip would check this itself, but at first downloads the requested package which of course always takes a while)
-        if not already_installed or args.reinstall_packages:
-            subprocess.Popen(["./python3.7m", "-m", "pip", "install", package, "--target", packages_path, "--upgrade"], env=dict(os.environ, PYTHONPATH=packages_path), cwd=python_bin_folder).wait()
+            # Check if package is installed
+            already_installed = package_name in installed_packages_name
+
+            # If version check is necessary
+            if package_version is not None and already_installed:
+                # Check if the correct version is installed
+                already_installed = (package_version == installed_packages_versions[installed_packages_name.index(package_name)])
+                print("{}:{} was installed: {}".format(package_name, package_version, already_installed))
+
+                # If there is already a different version installed
+                if not already_installed:
+                    # Remove the old version (We have to do this manually, as we are using --target with pip install. There old version are not removed)
+                    subprocess.Popen(["./python3.7m", "-m", "pip", "uninstall", package_name, "-y"], env=dict(os.environ, PYTHONPATH=packages_path), cwd=python_bin_folder).wait()
+
+            # Only install if its not already installed (pip would check this itself, but at first downloads the requested package which of course always takes a while)
+            if not already_installed or args.reinstall_packages:
+                subprocess.Popen(["./python3.7m", "-m", "pip", "install", package, "--target", packages_path, "--upgrade"], env=dict(os.environ, PYTHONPATH=packages_path), cwd=python_bin_folder).wait()
 
 # Run script
 if platform == "linux" or platform == "linux2":
