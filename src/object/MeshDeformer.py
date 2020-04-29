@@ -7,7 +7,7 @@ import math
 import mathutils
 import itertools
 from sklearn.cluster import KMeans, SpectralClustering
-from sklearn.neighbors import NearestNeighbors
+from scipy.spatial import cKDTree
 from collections import defaultdict
 from scipy.spatial.transform import Rotation
 import numpy.polynomial.polynomial as poly
@@ -75,7 +75,7 @@ class Node:
     
 
 class MeshModeler:
-    def __init__(self, mesh, k):
+    def __init__(self, mesh, k, strong_deform):
         self.mesh = mesh
         self.k = k
         self.n_faces = len(self.mesh.polygons)
@@ -87,6 +87,13 @@ class MeshModeler:
         self.verts = self.verts.astype(np.float32)
 
         self.origin = np.zeros(3, dtype=np.float32)
+        
+        if strong_deform:
+            self.angle_speed = np.pi/36 # 5 deg
+            self.max_angle = np.pi/2 # 90 deg
+        else:
+            self.angle_speed = np.pi/72 # 2.5 deg
+            self.max_angle = np.pi/16 # 11.25 deg
 
         print('mesh_modeler: Number of faces: ', self.n_faces)
 
@@ -139,24 +146,20 @@ class MeshModeler:
         # Build NN with good faces
         good_face_loc = self.face_loc[new_labels != -1, :]
         good_face_idx = new_labels[new_labels != -1]
-        face_neigh = NearestNeighbors(n_neighbors=1)
-        face_neigh.fit(good_face_loc)
+        face_cKDTree = cKDTree(good_face_loc)
 
-        for i, l in enumerate(new_labels):
-            if l == -1:
-                new_labels[i] = good_face_idx[face_neigh.kneighbors(self.face_loc[i:i+1,:], return_distance=False)]
-                # min_dist = np.inf
-                # min_cidx = 0
-                # for cidx, cpos in new_centroids.items():
-                #     dist = np.linalg.norm(cpos-self.face_loc[i])
-                #     if dist < min_dist:
-                #         min_dist = dist
-                #         min_cidx = cidx
-                # new_labels[i] = min_cidx
+        bad_face_idx = np.where(new_labels == -1)[0]
+        _, query_results = face_cKDTree.query(self.face_loc[new_labels==-1, :], 1, 0.1, 2, 0.25, 4)
+        for i, q in enumerate(query_results):
+            if q == good_face_loc.shape[0]:
+                # This is used as a not-found case
+                continue
+            new_labels[bad_face_idx[i]] = good_face_idx[q]
 
         re_labels = new_labels.copy()
         self.centroid = {}
         new_components = np.unique(new_labels)
+        new_components = np.delete(new_components, np.where(new_components == -1))
         for i, j in enumerate(new_components):
             re_labels[new_labels==j] = i
             self.centroid[i] = new_centroids[j]
@@ -174,7 +177,7 @@ class MeshModeler:
         splitting_edges = defaultdict(list)
 
         for edge, adj_faces in self.adj_faces_map.items():
-            types = set([self.mesh_seg_idx[f] for f in adj_faces])
+            types = set([self.mesh_seg_idx[f] for f in adj_faces if self.mesh_seg_idx[f] != -1])
             # Loop through all combinations of clusters, usually just 2
             # Sorted to maintain relative order
             for i, j in itertools.combinations(sorted(types), 2):
@@ -238,25 +241,15 @@ class MeshModeler:
         # Merge the segments that are not connected to the tree by their nearest neighbor
         good_face_loc = self.face_loc[self.mesh_seg_idx != -1, :]
         good_face_idx = self.mesh_seg_idx[self.mesh_seg_idx != -1]
-        face_neigh = NearestNeighbors(n_neighbors=1)
-        face_neigh.fit(good_face_loc)
-        
-        for i, l in enumerate(self.mesh_seg_idx):
-            if l == -1:
-                self.mesh_seg_idx[i] = good_face_idx[face_neigh.kneighbors(self.face_loc[i:i+1,:], return_distance=False)]
+        face_cKDTree = cKDTree(good_face_loc)
 
-        # for i in range(self.nc):
-        #     if i not in inserted:
-        #         # Is lonely
-        #         min_dist = np.inf
-        #         min_node = None
-        #         for j in inserted:
-        #             dist = np.linalg.norm(self.centroid[i] - self.centroid[j])
-        #             if dist < min_dist:
-        #                 min_dist = dist
-        #                 min_node = j
-        #         # self.mesh_seg_idx[self.mesh_seg_idx==i] = -1
-        #         self.mesh_seg_idx[self.mesh_seg_idx==i] = j
+        bad_face_idx = np.where(self.mesh_seg_idx == -1)[0]
+        _, query_results = face_cKDTree.query(self.face_loc[self.mesh_seg_idx==-1, :], 1, 0.1, 2, 0.25, 4)
+        for i, q in enumerate(query_results):
+            if q == good_face_loc.shape[0]:
+                # This is used as a not-found case
+                continue
+            self.mesh_seg_idx[bad_face_idx[i]] = good_face_idx[q]
 
         # Reinstate the cluster numbering
         buf_label = self.mesh_seg_idx.copy()
@@ -354,13 +347,13 @@ class MeshModeler:
                 continue
             degree = np.random.randint(3, 7)
             rot_angles = np.zeros((degree+1, 3))
-            max_angle_diff = 0.15 * n_frames / degree
+            max_angle_diff = self.angle_speed * n_frames / degree
 
-            rot_angles[0] = (np.random.rand(3)*2-1) * np.pi/2
+            rot_angles[0] = (np.random.rand(3)*2-1) * self.max_angle
             for j in range(1, degree+1):
                 this_ang_dist = (np.random.rand(3)*2-1) * max_angle_diff
                 rot_angles[j] = rot_angles[j-1] + this_ang_dist
-                rot_angles[j] = np.clip(rot_angles[j], -np.pi/2, np.pi/2)
+                rot_angles[j] = np.clip(rot_angles[j], -self.max_angle, self.max_angle)
             Xs = np.array([k/degree for k in range(degree+1)])
             self.node_poly[i] = poly.polyfit(Xs, rot_angles, deg=degree)
 
@@ -373,15 +366,6 @@ class MeshModeler:
                 continue
             angle = poly.polyval(frame_i/self.n_frames, self.node_poly[i])
             self.nodes[i].r = Rotation.from_euler('zxy', angle)
-
-    # def mod_rotation(self, n_f):
-    #     for n in self.nodes:
-    #         if n == self.nodes[self.root]:
-    #             continue
-    #         # angle = n.r.as_euler('zyx')
-    #         angle = np.zeros(3, dtype=np.float32)
-    #         angle = np.clip(angle+n_f*0.02, -np.pi/2, np.pi/2)
-    #         n.r = Rotation.from_euler('zyx', angle)
 
     def apply_transformation(self):
         self.nodes[self.root].propagate()
