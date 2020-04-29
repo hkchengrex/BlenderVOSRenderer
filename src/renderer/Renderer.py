@@ -119,7 +119,7 @@ class Renderer(Module):
         else:
             raise Exception("No such denoiser: " + denoiser)
 
-        simplify_subdivision_render = self.config.get_int("simplify_subdivision_render", 3)
+        simplify_subdivision_render = self.config.get_int("simplify_subdivision_render", 5)
         if simplify_subdivision_render > 0:
             bpy.context.scene.render.use_simplify = True
             bpy.context.scene.render.simplify_subdivision_render = simplify_subdivision_render
