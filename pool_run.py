@@ -13,6 +13,7 @@ parser.add_argument('--models', help='Model path', default='../ShapeNet/ShapeNet
 parser.add_argument('--textures', help='Texture path', default='../Texture')
 parser.add_argument('--output', help='Output path', default='../output/render')
 parser.add_argument('--yaml', help='Path to a list of yaml files')
+parser.add_argument('--start', type=int, help='Position to start running', default=0)
 args = parser.parse_args()
 
 start = time.time()
@@ -35,6 +36,10 @@ def work(func_arg):
 
 yaml_files = os.listdir(args.yaml)
 yaml_files = sorted([f for f in yaml_files if '.yaml' in f])
+
+print('Starting from %d out of %d files.' % (args.start, len(yaml_files)))
+yaml_files = yaml_files[args.start:]
+
 func_args = [(y,i) for i, y in enumerate(yaml_files)]
 
 pool = Pool(args.N)
