@@ -57,7 +57,7 @@ class SimRgbRenderer(Renderer):
         # if the rendering is not performed -> it is probably the debug case.
         do_undo = not self._avoid_rendering
         with Utility.UndoAfterExecution(perform_undo_op=do_undo):
-            self._configure_renderer(default_denoiser="Intel", default_samples=128)
+            self._configure_renderer(default_denoiser="Intel", default_samples=64)
 
             # In case a previous renderer changed these settings
             bpy.context.scene.render.image_settings.color_mode = "RGB"
