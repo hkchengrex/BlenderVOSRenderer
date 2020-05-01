@@ -33,8 +33,6 @@ class LightTrajectoryRunner(Module):
         locations_np = poly.polyval(pts, self.location_poly)
         rotations_np = poly.polyval(pts, self.rotation_poly)
 
-        print(locations_np, rotations_np)
-
         locations = locations_np.transpose(1, 0).astype(float).tolist()
         rotations = rotations_np.transpose(1, 0).astype(float).tolist()
 
