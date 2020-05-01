@@ -26,7 +26,7 @@ class SkyBoxLoader(Loader):
         # loaded_object = Utility.import_objects(filepath=file_path)[0]
         # loaded_object.scale = self.config.get_vector("scale")
 
-        bpy.ops.mesh.primitive_plane_add(size=30, location=self.config.get_vector('location'), rotation=self.config.get_vector('rotation'))
+        bpy.ops.mesh.primitive_plane_add(size=40, location=self.config.get_vector('location'), rotation=self.config.get_vector('rotation'))
         obj = bpy.context.active_object
         obj.name = 'skybox'
 
