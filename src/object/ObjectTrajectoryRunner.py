@@ -43,6 +43,7 @@ class ObjectTrajectoryRunner(Module):
 
         seed = self.config.get_int("seed")
         strong_deform = self.config.get_bool('strong_deform', False)
+        animate = self.config.get_bool('animate', True)
 
         # Load addition texture if there is any
         texture_path = self.config.get_string('texture', '')
@@ -90,16 +91,17 @@ class ObjectTrajectoryRunner(Module):
             print('Original texture retained!')
 
         # Try deformation -- no every model can pass it
-        try:
-            np.random.seed(seed)
-            self.modeler = MeshModeler(self.obj.data, 8, strong_deform)
-            self.modeler.segment_mesh()
-            self.modeler.build_skeleton()
-            self.modeler.build_animation(n_frames)
-            bpy.app.handlers.frame_change_pre.append(self.mesh_deform_handler)
-        except Exception as e:
-            print('Mesh segmentation failed. Bailing!', e)
-            # raise e
+        np.random.seed(seed)
+        if animate:
+            try:
+                self.modeler = MeshModeler(self.obj.data, 8, strong_deform)
+                self.modeler.segment_mesh()
+                self.modeler.build_skeleton()
+                self.modeler.build_animation(n_frames)
+                bpy.app.handlers.frame_change_pre.append(self.mesh_deform_handler)
+            except Exception as e:
+                print('Mesh segmentation failed. Bailing!', e)
+                # raise e
 
         self.name = self.obj.name
 
