@@ -138,7 +138,7 @@ print("Using blender in " + blender_path)
 
 
 if not args.fast:
-    general_required_packages = ["pyyaml==5.1.2", "Sphinx==1.6.5", "scipy"]
+    general_required_packages = ["pyyaml==5.1.2", "Sphinx==1.6.5", "scipy", "sklearn"]
 
     required_packages = general_required_packages
     if "pip" in setup_config:
