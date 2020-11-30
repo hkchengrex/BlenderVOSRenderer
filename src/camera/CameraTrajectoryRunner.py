@@ -14,7 +14,7 @@ class CameraTrajectoryRunner(CameraModule):
     """
 
     def __init__(self, config):
-        CameraModule.__init__(self, config)
+        CameraModule.__init__(self, config, False)
         self.location_poly = config.get_list("cam_poses/location_poly")
         self.look_at_poly = config.get_list("cam_poses/look_at_poly")
         self.intri_config = Config(config.get_raw_dict('intrinsics'))

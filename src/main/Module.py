@@ -17,11 +17,13 @@ class Module:
        "temp_dir", "The path to a directory where all temporary output files should be stored. If it doesn't exist, it is created automatically."
     """
 
-    def __init__(self, config):
+    def __init__(self, config, mk_dir=True):
         self.config = config
 
         self._output_dir = Utility.resolve_path(self.config.get_string("output_dir", ""))
-        os.makedirs(self._output_dir, exist_ok=True)
+        if mk_dir:
+            print('Made')
+            os.makedirs(self._output_dir, exist_ok=True)
 
         self._temp_dir = Utility.get_temporary_directory(config)
         os.makedirs(self._temp_dir, exist_ok=True)

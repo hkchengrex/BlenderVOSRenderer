@@ -18,7 +18,7 @@ class SkyBoxLoader(Loader):
        "path", "The path to the 3D data file to load. Can be either path or paths not both."
     """
     def __init__(self, config):
-        Loader.__init__(self, config)
+        Loader.__init__(self, config, False)
 
     def run(self):
 

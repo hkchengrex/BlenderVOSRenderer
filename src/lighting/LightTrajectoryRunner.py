@@ -14,7 +14,7 @@ class LightTrajectoryRunner(Module):
     """
 
     def __init__(self, config):
-        Module.__init__(self, config)
+        Module.__init__(self, config, False)
         self.location_poly = self.config.get_list("poses/location_poly")
         self.rotation_poly = self.config.get_list("poses/rotation_poly")
 

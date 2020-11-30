@@ -23,7 +23,7 @@ def work(func_arg):
     i = func_arg[1]
 
     yaml_path = os.path.join(args.yaml, yaml)
-    print('Starting working on ', yaml_path, '...')
+    print('Started working on ', yaml_path, '...')
     command = 'CUDA_DEVICE_ORDER=PCI_BUS_ID CUDA_VISIBLE_DEVICES=%d python run.py --fast %s %s %s %s' % (args.d, yaml_path, args.models, args.textures, args.output)
     this_subprocess = subprocess.Popen(command, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     this_subprocess.wait()

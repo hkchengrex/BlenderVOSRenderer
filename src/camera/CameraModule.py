@@ -37,8 +37,8 @@ class CameraModule(Module):
        "interocular_distance", "Distance between the camera pair."
     """
 
-    def __init__(self, config):
-        Module.__init__(self, config)
+    def __init__(self, config, mk_dir=True):
+        Module.__init__(self, config, mk_dir)
         self.source_frame = self.config.get_list("source_frame", ["X", "Y", "Z"])
 
     def _insert_key_frames(self, cam, cam_ob, frame_id):

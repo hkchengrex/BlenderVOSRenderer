@@ -14,7 +14,7 @@ class SimRgbRenderer(Renderer):
        "render_texture_less", "Render all objects with a white slightly glossy texture, does not change emission materials, default: False (off)."
     """
     def __init__(self, config):
-        Renderer.__init__(self, config)
+        Renderer.__init__(self, config, False)
         self._texture_less_mode = config.get_bool('render_texture_less', False)
 
     def change_to_texture_less_render(self):

@@ -1,14 +1,15 @@
 import argparse
 import os
-import tarfile
-import subprocess
 import shutil
+import subprocess
+import tarfile
 from sys import platform, version_info
+
 if version_info.major == 3:
     from urllib.request import urlretrieve
 else:
-    from urllib import urlretrieve
     import contextlib
+    from urllib import urlretrieve
     try:
         import lzma
     except ImportError as e:

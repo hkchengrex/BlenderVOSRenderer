@@ -22,16 +22,22 @@ class RGBSegWriter(Module):
     """
 
     def __init__(self, config):
-        Module.__init__(self, config)
+        super().__init__(config, mk_dir=False)
 
         self._avoid_rendering = config.get_bool("avoid_rendering", False)
         self.rgb_output_key = self.config.get_string("rgb_output_key", "colors")
         self.segmap_png_output_key = self.config.get_string("segmap_png_output_key", "segmap_png")
-        self.ren_out_data_dir = os.path.join(self._determine_output_dir(False), 'image')
-        self.seg_out_data_dir = os.path.join(self._determine_output_dir(False), 'segmentation')
+
+        base_path = self._determine_output_dir(False)
+        base_folder = os.path.dirname(base_path)
+        vid_name = os.path.basename(base_path)
+        self.ren_out_data_dir = os.path.join(base_folder, 'JPEGImages', vid_name)
+        self.seg_out_data_dir = os.path.join(base_folder, 'Annotations', vid_name)
 
         os.makedirs(self.ren_out_data_dir, exist_ok=True)
         os.makedirs(self.seg_out_data_dir, exist_ok=True)
+        print(self.ren_out_data_dir)
+        print(self.seg_out_data_dir)
 
     def run(self):
         if self._avoid_rendering:
@@ -56,16 +62,23 @@ class RGBSegWriter(Module):
         # for each rendered frame
         for frame in range(bpy.context.scene.frame_start, bpy.context.scene.frame_end):
 
+            """
+            Blender always output %04d which is followed by the renderer
+            We like %05d so we replace it here
+            """
+
             # Segmentation
             source_path = segmentation_map_output["path"] % frame
-            target_path = os.path.join(self.seg_out_data_dir, os.path.basename(segmentation_map_output["path"] % (frame)))
+            target_path = os.path.join(self.seg_out_data_dir, os.path.basename(segmentation_map_output["path"].replace('%04d','%05d') % (frame)))
+            print(frame, source_path, target_path)
 
             shutil.copyfile(source_path, target_path)
             segmentation_map_paths.append(segmentation_map_output["path"] % frame)
 
             # RGB
             source_path = rgb_output["path"] % frame
-            target_path = os.path.join(self.ren_out_data_dir, os.path.basename(rgb_output["path"] % (frame)))
+            target_path = os.path.join(self.ren_out_data_dir, os.path.basename(rgb_output["path"].replace('%04d','%05d') % (frame)))
+            print(frame, source_path, target_path)
 
             shutil.copyfile(source_path, target_path)
             new_out_paths.append(os.path.basename(target_path))

@@ -47,7 +47,7 @@ class SegMapPngRenderer(Renderer):
     """
 
     def __init__(self, config):
-        Renderer.__init__(self, config)
+        Renderer.__init__(self, config, False)
         # As we use float16 for storing the rendering, the interval of integers which can be precisely stored is [-2048, 2048].
         # As blender does not allow negative values for colors, we use [0, 2048] ** 3 as our color space which allows ~8 billion different colors/labels. This should be enough.
         self.render_colorspace_size_per_dimension = 256

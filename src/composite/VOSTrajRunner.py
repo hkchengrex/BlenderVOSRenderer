@@ -19,7 +19,7 @@ class VOSTrajRunner(Module):
     """
 
     def __init__(self, config):
-        Module.__init__(self, config)
+        Module.__init__(self, config, False)
 
         camera_runner_config = config.get_raw_dict("camera_runner", {})
 

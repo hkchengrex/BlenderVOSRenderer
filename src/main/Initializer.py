@@ -18,7 +18,7 @@ class Initializer(Module):
     """
 
     def __init__(self, config):
-        Module.__init__(self, config)
+        Module.__init__(self, config, False)
 
     def run(self):
         # Make sure to use the current GPU

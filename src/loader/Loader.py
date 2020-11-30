@@ -9,8 +9,8 @@ class Loader(Module):
        :header: "Parameter", "Description"
        "add_properties", "properties in form of a dict, which should be add to all loaded objects."
     """
-    def __init__(self, config):
-        Module.__init__(self, config)
+    def __init__(self, config, mk_dir=True):
+        Module.__init__(self, config, mk_dir)
 
     def _set_properties(self, objects):
         """ Sets all custom properties of all given objects according to the configuration.

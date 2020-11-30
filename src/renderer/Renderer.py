@@ -50,8 +50,8 @@ class Renderer(Module):
 
     DEPTH_END = 25.1
 
-    def __init__(self, config):
-        Module.__init__(self, config)
+    def __init__(self, config, mk_dir=True):
+        Module.__init__(self, config, mk_dir)
         self._avoid_rendering = config.get_bool("avoid_rendering", False)
         addon_utils.enable("render_auto_tile_size")
 

@@ -19,7 +19,7 @@ class ObjectTrajectoryRunner(Module):
     """
 
     def __init__(self, config):
-        Module.__init__(self, config)
+        Module.__init__(self, config, False)
         self.location_poly = self.config.get_list("poses/location_poly")
         self.rotation_poly = self.config.get_list("poses/rotation_poly")
         self.scale_poly = self.config.get_list("poses/scale_poly")
@@ -42,8 +42,6 @@ class ObjectTrajectoryRunner(Module):
         self.obj = Utility.import_objects(filepath=file_path)[0]
 
         seed = self.config.get_int("seed")
-        strong_deform = self.config.get_bool('strong_deform', False)
-        animate = self.config.get_bool('animate', True)
 
         # Load addition texture if there is any
         texture_path = self.config.get_string('texture', '')
@@ -92,16 +90,6 @@ class ObjectTrajectoryRunner(Module):
 
         # Try deformation -- no every model can pass it
         np.random.seed(seed)
-        if animate:
-            try:
-                self.modeler = MeshModeler(self.obj.data, 8, strong_deform)
-                self.modeler.segment_mesh()
-                self.modeler.build_skeleton()
-                self.modeler.build_animation(n_frames)
-                bpy.app.handlers.frame_change_pre.append(self.mesh_deform_handler)
-            except Exception as e:
-                print('Mesh segmentation failed. Bailing!', e)
-                # raise e
 
         self.name = self.obj.name
 
