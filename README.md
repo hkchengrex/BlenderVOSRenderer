@@ -9,13 +9,13 @@ BL30K is a synthetic dataset rendered using ShapeNet data and Blender. We break 
 
 Download here: [One Drive](https://hkustconnect-my.sharepoint.com/:f:/g/personal/hkchengad_connect_ust_hk/EhQLhKWJcVVGgTSWIpwYaGgBTbG7fDeHh8hgLsBTKBGvBA?e=eU9R5l)
 
-Examples:
+Examples (not cherry-picked):
 | Image | Annotation |
 | :---: | :---: |
-| [!image1](demo/00000.jpg) | [image2](demo/00000.png) |
-| [!image1](demo/00001.jpg) | [image2](demo/00001.png) |
-| [!image1](demo/00002jpg) | [image2](demo/00002.png) |
-| [!image1](demo/00003.jpg) | [image2](demo/00003.png) |
+| ![image1](demo/00000.jpg) | ![image2](demo/00000.png) |
+| ![image1](demo/00001.jpg) | ![image2](demo/00001.png) |
+| ![image1](demo/00002jpg) | ![image2](demo/00002.png) |
+| ![image1](demo/00003.jpg) | ![image2](demo/00003.png) |
 
 ## Generation
 
