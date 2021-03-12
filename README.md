@@ -6,17 +6,18 @@ The original functions of BlenderProc are mostly crippled by my (hacky) modifica
 
 ## BL30K
 
-BL30K is a synthetic dataset rendered using ShapeNet data and Blender. We break the dataset into six segments, each with approximately 5K videos. We noted that using probably half of the data is sufficient to reach full performance (although we still used all), and using one-sixth (5K) is insufficient.
+BL30K is a synthetic dataset rendered using Blender with ShapeNet's data. We break the dataset into six segments, each with approximately 5K videos.
+The videos are organized in a similar format as DAVIS and YouTubeVOS, so dataloaders for those datasets can be used directly. Each video is 160 frames long, and each frame has a resolution of 768*512. There are 3-5 objects per video, and each object has a random smooth trajectory -- we tried to optimize the trajectories in a greedy fashion to minimize object intersection (not guaranteed), with occlusions still possible (happen a lot in reality). See [MiVOS](https://github.com/hkchengrex/MiVOS/#bl30k) for details.
 
 Download here: [One Drive](https://hkustconnect-my.sharepoint.com/:f:/g/personal/hkchengad_connect_ust_hk/EhQLhKWJcVVGgTSWIpwYaGgBTbG7fDeHh8hgLsBTKBGvBA?e=eU9R5l)
 
-Examples (not cherry-picked):
+Examples:
 | Image | Annotation |
 | :---: | :---: |
 | ![image1](demo/00000.jpg) | ![image2](demo/00000.png) |
-| ![image1](demo/00001.jpg) | ![image2](demo/00001.png) |
+| ![image1](demo/00004.jpg) | ![image2](demo/00004.png) |
 | ![image1](demo/00002.jpg) | ![image2](demo/00002.png) |
-| ![image1](demo/00003.jpg) | ![image2](demo/00003.png) |
+| ![image1](demo/00028.jpg) | ![image2](demo/00028.png) |
 
 ## Generation
 
