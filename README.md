@@ -2,6 +2,7 @@
 
 This is a fork of [BlenderProc](https://github.com/DLR-RM/BlenderProc).
 It is used to generate the BL30K dataset.
+The original functions of BlenderProc are mostly crippled by my (hacky) modifications to this repo.
 
 ## BL30K
 
