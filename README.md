@@ -14,7 +14,7 @@ Examples (not cherry-picked):
 | :---: | :---: |
 | ![image1](demo/00000.jpg) | ![image2](demo/00000.png) |
 | ![image1](demo/00001.jpg) | ![image2](demo/00001.png) |
-| ![image1](demo/00002jpg) | ![image2](demo/00002.png) |
+| ![image1](demo/00002.jpg) | ![image2](demo/00002.png) |
 | ![image1](demo/00003.jpg) | ![image2](demo/00003.png) |
 
 ## Generation
