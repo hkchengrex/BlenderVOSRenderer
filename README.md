@@ -9,7 +9,11 @@ The original functions of BlenderProc are mostly crippled by my (hacky) modifica
 BL30K is a synthetic dataset rendered using Blender with ShapeNet's data. We break the dataset into six segments, each with approximately 5K videos.
 The videos are organized in a similar format as DAVIS and YouTubeVOS, so dataloaders for those datasets can be used directly. Each video is 160 frames long, and each frame has a resolution of 768*512. There are 3-5 objects per video, and each object has a random smooth trajectory -- we tried to optimize the trajectories in a greedy fashion to minimize object intersection (not guaranteed), with occlusions still possible (happen a lot in reality). See [MiVOS](https://github.com/hkchengrex/MiVOS/#bl30k) for details.
 
-Download here: [One Drive](https://hkustconnect-my.sharepoint.com/:f:/g/personal/hkchengad_connect_ust_hk/EhQLhKWJcVVGgTSWIpwYaGgBTbG7fDeHh8hgLsBTKBGvBA?e=eU9R5l)
+You can download it manually below. Note that each segment is about 115GB in size -- 700GB in total.
+
+Google Drive is much faster in my experience. Your mileage might vary.
+
+Manual download: [[Google Drive]](https://drive.google.com/drive/folders/1KxriFZM8Y_-KbiA3D0PaMv6LQaatKFH-?usp=sharing) [[OneDrive]](https://uillinoisedu-my.sharepoint.com/:f:/g/personal/hokeikc2_illinois_edu/ElEqJXQqaqZAqG8QROa0VesBAw4FiOl5wleP2iq_KXDPyw?e=eKMSbx)
 
 Examples:
 | Image | Annotation |
@@ -40,3 +44,5 @@ Please cite our paper (and the original BlenderProc) if you find this repo/data 
   year={2021}
 }
 ```
+
+Contact: <hkchengrex@gmail.com>
